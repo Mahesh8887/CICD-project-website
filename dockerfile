@@ -5,9 +5,11 @@ RUN yum update -y && \
     yum search wget && \
     yum install wget -y && \
     yum install unzip -y
+# make directory
+RUN mkdir web
 
 # change directory
-RUN cd /var/www/html
+RUN cd /web
 
 # download webfiles
 RUN wget https://www.free-css.com/assets/files/free-css-templates/download/page287/eflyer.zip
@@ -15,11 +17,8 @@ RUN wget https://www.free-css.com/assets/files/free-css-templates/download/page2
 # unzip folder
 RUN unzip eflyer.zip
 
-# copy files into html directory
-RUN cp -r eflyer/* /var/www/html/
-
 # remove unwanted folder
-RUN rm -rf eflyer eflyer.zip
+RUN rm -rf eflyer.zip
 
 # exposes port 80 on the container
 EXPOSE 80
