@@ -1,12 +1,30 @@
-FROM centos:latest
-MAINTAINER maheshbiradar8887@gmail.com
-RUN yum install -y httpd \
-  zip \
-  unzip
-ADD https://www.free-css.com/assets/files/free-css-templates/download/page258/loxury.zip /var/www/html/
-WORKDIR /var/www/html
-RUN unzip loxury.zip
-RUN cp -rvf loxury/*
-RUN rm -rf loxury loxury.zip
-CMD ["/usr/sbin/httpd", "D", "FOREGROUND"]
+FROM centos:7
+# Install dependencies
+RUN yum update -y && \
+    yum install -y httpd && \
+    yum search wget && \
+    yum install wget -y && \
+    yum install unzip -y
+
+# change directory
+RUN cd /var/www/html
+
+# download webfiles
+RUN wget https://www.free-css.com/assets/files/free-css-templates/download/page287/eflyer.zip
+
+# unzip folder
+RUN unzip eflyer.zip
+
+# copy files into html directory
+RUN cp -r eflyer/* /var/www/html/
+
+# remove unwanted folder
+RUN rm -rf eflyer eflyer.zip
+
+# exposes port 80 on the container
 EXPOSE 80
+
+# set the default application that will start when the container start
+ENTRYPOINT ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+
+
