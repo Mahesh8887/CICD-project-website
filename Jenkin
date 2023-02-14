@@ -1,23 +1,10 @@
-pipeline {
+ pipeline {
     agent any
     
     stages{
         stage('Git Code check'){
             steps{
                 git branch: 'main', url: 'https://github.com/Mahesh8887/kubernatesproject.git' 
-            }
-        }
-        stage('Build and Test'){
-            steps{
-                sh 'docker build . -t mahesh8887/node:latest'
-            }
-        }
-        stage('Push'){
-            steps{
-                 withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-        	     sh "docker login -u mahesh8887 -p ${env.dockerhub}"
-                 sh 'docker push mahesh8887/node:latest'
-                }
             }
         }
         stage('Sending docker file to Ansible server over ssh'){
@@ -28,7 +15,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker Build image'){
+       stage('Docker Build image'){
             steps{
                 sshagent(['ansible']) {
                     sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
@@ -50,11 +37,11 @@ pipeline {
             steps{
                 sshagent(['ansible']) {
                     sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker run -d --name node-todo-app -p 8000:80 node'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker run -d --name node-todo-app -p 8001:80 node'
                 }
             }
 
-        } 
+        }         
     }
 }
 
