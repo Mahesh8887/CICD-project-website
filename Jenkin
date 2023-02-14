@@ -28,6 +28,33 @@ pipeline {
                 }
             }
         }
+        stage('Docker Build image'){
+            steps{
+                sshagent(['ansible']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker build . -t mahesh8887/node:latest'
+                }
+            }
+        }
+        stage('Push docker image to docker hub'){
+            steps{
+                sshagent(['ansible']) {
+                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+        	        sh "docker login -u mahesh8887 -p ${env.dockerhub}"
+                    sh 'docker push mahesh8887/node:latest'
+                }
+            }
+        } 
+        }
+        stage('Deploy'){
+            steps{
+                sshagent(['ansible']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
+                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker run -d --name node-todo-app -p 8000:80 node'
+                }
+            }
+
+        } 
     }
 }
 
