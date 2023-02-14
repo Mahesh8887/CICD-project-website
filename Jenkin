@@ -20,11 +20,10 @@ pipeline {
                 }
             }
         }
-        stage('Deploy of docker container'){
+        stage('Sending docker file to Ansible server over ssh'){
             steps{
-                sshagent(['dockerhostpwd']) {
-                    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.53.18 docker run -p 8000:80 -d --name nodeproject mahesh8887/node:latest"
-                  
+                sshagent(['docker_file']) {
+                    sh 'scp /var/lib/jenkins/workspace/CICD-jenkin/* ubuntu@100.25.0.125:/home/ubuntu/'
                 }
             }
         }
