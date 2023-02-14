@@ -1,31 +1,10 @@
-FROM amazonlinux:latest
+FROM python:3
+RUN pip install django==3.2
 
-# Install dependencies
-RUN yum update -y && \
-    yum install -y httpd && \
-    yum search wget && \
-    yum install wget -y && \
-    yum install unzip -y
+COPY . .
 
-# change directory
-RUN cd /var/www/html
-
-# download webfiles
-RUN wget https://github.com/azeezsalu/techmax/archive/refs/heads/main.zip
-
-# unzip folder
-RUN unzip main.zip
-
-# copy files into html directory
-RUN cp -r techmax-main/* /var/www/html/
-
-# remove unwanted folder
-RUN rm -rf techmax-main main.zip
-
-# exposes port 80 on the container
-EXPOSE 80
-
-# set the default application that will start when the container start
-ENTRYPOINT ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+RUN python manage.py migrate
+EXPOSE 8000
+CMD ["python","manage.py","runserver","0.0.0.0:8000"]
 
 
