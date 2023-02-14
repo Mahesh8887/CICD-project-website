@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    
+    stages{
+        stage('Git Code check'){
+            steps{
+                git branch: 'main', url: 'https://github.com/Mahesh8887/kubernatesproject.git' 
+            }
+        }
+        stage('Build and Test'){
+            steps{
+                sh 'docker build . -t mahesh8887/node:latest'
+            }
+        }
+        stage('Push'){
+            steps{
+                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhubpwd')]) {
+        	     sh "docker login -u mahesh8887 -p ${env.dockerhubpwd}"
+                 sh 'docker push mahesh8887/node:latest'
+                }
+            }
+        }
+        stage('Deploy of docker container'){
+            steps{
+                sshagent(['dockerhostpwd']) {
+                    sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.53.18 docker run -p 8000:80 -d --name nodeproject mahesh8887/node:latest"
+                  
+                }
+            }
+        }
+    }
+}
