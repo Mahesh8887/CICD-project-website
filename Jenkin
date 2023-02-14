@@ -22,7 +22,7 @@ pipeline {
         }
         stage('Sending docker file to Ansible server over ssh'){
             steps{
-                sshagent(['ansible_demo']) {
+                sshagent(['ansible']) {
                     sh "scp /var/lib/jenkins/workspace/Jenkin-project/* ec2-user@172.31.45.248:/home/ubuntu/"
                 }
             }
