@@ -14,7 +14,7 @@ pipeline {
         }
         stage('Push'){
             steps{
-                withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhubpwd')]) {
+                withCredentials([string(credentialsId: 'dockerhubpwd', variable: 'dockerhubpwd')]) {
         	     sh "docker login -u mahesh8887 -p ${env.dockerhubpwd}"
                  sh 'docker push mahesh8887/node:latest'
                 }
@@ -22,8 +22,8 @@ pipeline {
         }
         stage('Sending docker file to Ansible server over ssh'){
             steps{
-                sshagent(['docker_file']) {
-                    sh 'scp /var/lib/jenkins/workspace/CICD-jenkin/* ubuntu@100.25.0.125:/home/ubuntu/'
+                sshagent(['ansible_demo']) {
+                    sh "scp /var/lib/jenkins/workspace/Jenkin-project/* ec2-user@35.154.136.248:/home/ubuntu/"
                 }
             }
         }
