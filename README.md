@@ -50,7 +50,7 @@ pipeline {
         }         
     }
 }
-#### Docker File ####
+# Docker File 
 
 FROM amazonlinux:latest
 
