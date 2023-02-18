@@ -1,6 +1,5 @@
+---
 - hosts: all
-  tasks:
-  
-   - name: create new container
-     shell: docker run -d -p 8000:80 mahesh8887/website:latest'
-     
+  tasks: 
+     - name: create new deployment
+       command: docker run -d -p 8000:80 mahesh8887/website:latest'
