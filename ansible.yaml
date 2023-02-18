@@ -1,10 +1,5 @@
 - hosts: all
   tasks:
-   - name: stop container
-     shell: docker container stop website:v1.$BUILD_ID
-   - name: remove container
-     shell: docker container rm website:v1.$BUILD_ID
-   - name: remove docker image
-     shell: docker image rmi mahesh8887/mahesh8887/website:latest
+  
    - name: create new container
      shell: docker container run -itd --name website:v1.$BUILD_ID -p 8000:80 mahesh8887/website:latest
