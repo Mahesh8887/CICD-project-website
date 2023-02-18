@@ -2,5 +2,5 @@
 - hosts: all
   tasks: 
      - name: create new deployment
-       command: docker container run -itd --name   -p 8000:80 mahesh8887/website'
+       command: docker container run -itd --name websitecontenar -p 8000:80 mahesh8887/website'
       
