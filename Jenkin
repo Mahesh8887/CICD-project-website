@@ -11,7 +11,7 @@ pipeline {
             steps{
                 sshagent(['jenkin_to_ansible']) {
                     sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244'
-                    sh "scp /var/lib/jenkins/workspace/Web-site-CICD/* ubuntu@172.31.31.244:/home/ubuntu/"
+                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.31.244:/home/ubuntu/"
                 }
             }
         } 
@@ -47,14 +47,14 @@ pipeline {
             steps{
                 sshagent(['Ansible_to_webserver']) {
                     sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.28.68'
-                    sh "scp /var/lib/jenkins/workspace/Web-site-CICD/* ubuntu@172.31.28.68:/home/ubuntu/"
+                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.28.68:/home/ubuntu/"
                 }
             }
         }
         stage('Webserver Deploy'){
             steps{
                 sshagent(['deploy']) {  
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244'
                     sh 'ssh -o StrictHostKeyChecking=no ansible-playbook -i invetri ansible.yml'
                 }
             }
