@@ -2,45 +2,62 @@ pipeline {
     agent any
     
     stages{
-        stage('Git Code check'){
+        stage('Git Code checkout'){
             steps{
-                git branch: 'main', url: 'https://github.com/Mahesh8887/kubernatesproject.git' 
+                git branch: 'main', url: 'https://github.com/Mahesh8887/CICD-project-website.git' 
             }
         }
         stage('Sending docker file to Ansible server over ssh'){
             steps{
-                sshagent(['ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248'
-                    sh "scp /var/lib/jenkins/workspace/CICD-jenkin/* ec2-user@172.31.45.248:/home/ec2-user/"
+                sshagent(['jenkin_to_ansible']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244'
+                    sh "scp /var/lib/jenkins/workspace/Web-site-CICD/* ubuntu@172.31.31.244:/home/ubuntu/"
                 }
             }
-        }
-       stage('Docker Build image'){
+        } 
+        stage('Docker Build image'){
             steps{
-                sshagent(['ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker build . -t mahesh8887/node:latest'
+                sshagent(['jenkin_to_ansible']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker build -t website:v1.$BUILD_ID .'
+                }
+            }
+        } 
+        stage('Docker image tagging'){
+            steps{
+                sshagent(['jenkin_to_ansible']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image tag website:v1.$BUILD_ID mahesh8887/website '
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image tag website:v1.$BUILD_ID mahesh8887/website:latest '
                 }
             }
         }
         stage('Push docker image to docker hub'){
             steps{
-                sshagent(['ansible']) {
-                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
-        	           sh "docker login -u mahesh8887 -p ${env.dockerhub}"
-                    sh 'docker push mahesh8887/node:latest'
+                sshagent(['jenkin_to_ansible']) {
+                    withCredentials([string(credentialsId: 'docker', variable: 'docker')]) {
+                        sh "docker login -u mahesh8887 -p ${env.docker}"
+                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
+                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image push mahesh8887/website:latest'
+                    }
                 }
             }
         } 
-        }
-        stage('Deploy'){
+        stage('Copy file from Ansible to webserver server'){
             steps{
-                sshagent(['ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 cd /home/ec2-user/'
-                    sh 'ssh -o StrictHostKeyChecking=no ec2-user@172.31.45.248 docker run -d --name node-todo-app -p 8000:80 node'
+                sshagent(['Ansible_to_webserver']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.28.68'
+                    sh "scp /var/lib/jenkins/workspace/Web-site-CICD/* ubuntu@172.31.28.68:/home/ubuntu/"
                 }
             }
-
-        }         
+        }
+        stage('Webserver Deploy'){
+            steps{
+                sshagent(['deploy']) {  
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ansible-playbook -i invetri ansible.yml'
+                }
+            }
+        }
     }
 }
