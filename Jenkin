@@ -46,8 +46,8 @@ pipeline {
         stage('Copy file from Ansible to webserver server'){
             steps{
                 sshagent(['Ansible_to_webserver']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.28.68'
-                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.28.68:/home/ubuntu/"
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172-31-23-38'
+                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172-31-23-38:/home/ubuntu/"
                 }
             }
         }
