@@ -1,5 +1,5 @@
 ---
-- hosts: web
+- hosts: all
   become: true
   tasks: 
      - name: create new deployment
