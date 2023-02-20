@@ -11,7 +11,7 @@ RUN yum update -y && \
 RUN cd /var/www/html
 
 # download webfiles
-RUN wget https://github.com/azeezsalu/techmax/archive/refs/heads/main.zip
+RUN wget https://www.free-css.com/assets/files/free-css-templates/download/page288/startup.zip
 
 # unzip folder
 RUN unzip main.zip
