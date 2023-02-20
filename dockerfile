@@ -11,7 +11,7 @@ RUN yum update -y && \
 RUN cd /var/www/html
 
 # download webfiles
-RUN wget https://www.free-css.com/assets/files/free-css-templates/download/page288/startup.zip
+RUN wget https://freewebsitetemplates.com/preview/rehabilitation-yoga.zip
 
 # unzip folder
 RUN unzip main.zip
