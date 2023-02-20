@@ -9,55 +9,55 @@ pipeline {
         }
         stage('Sending docker file to Ansible server over ssh'){
             steps{
-                sshagent(['jenkin_to_ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244'
-                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.31.244:/home/ubuntu/"
+                sshagent(['ansible_demo']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235'
+                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.19.235:/home/ubuntu/"
                 }
             }
-        } 
+        }
         stage('Docker Build image'){
             steps{
-                sshagent(['jenkin_to_ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker build -t website:v1.$BUILD_ID .'
+                sshagent(['ansible_demo']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 docker build -t website:v1.$BUILD_ID .'
                 }
             }
-        } 
+        }
         stage('Docker image tagging'){
             steps{
-                sshagent(['jenkin_to_ansible']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image tag website:v1.$BUILD_ID mahesh8887/website '
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image tag website:v1.$BUILD_ID mahesh8887/website:latest '
+                sshagent(['ansible_demo']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 cd /home/ubuntu/'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 docker image tag website:v1.$BUILD_ID mahesh8887/website '
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 docker image tag website:v1.$BUILD_ID mahesh8887/website:latest '
                 }
             }
         }
         stage('Push docker image to docker hub'){
             steps{
-                sshagent(['jenkin_to_ansible']) {
-                    withCredentials([string(credentialsId: 'docker', variable: 'docker')]) {
-                        sh "docker login -u mahesh8887 -p ${env.docker}"
-                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 cd /home/ubuntu/'
-                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244 docker image push mahesh8887/website:latest'
+                sshagent(['ansible_demo']) {
+                    withCredentials([string(credentialsId: 'dockerhub', variable: 'dockerhub')]) {
+                        sh "docker login -u mahesh8887 -p ${env.dockerhub}"
+                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 cd /home/ubuntu/'
+                        sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 docker image push mahesh8887/website:latest'
                     }
                 }
             }
-        } 
+        }
         stage('Copy file from Ansible to webserver server'){
             steps{
-                sshagent(['Ansible_to_webserver']) {
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172-31-23-38'
-                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172-31-23-38:/home/ubuntu/"
+                sshagent(['deploy']) {
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.25.64'
+                    sh "scp /var/lib/jenkins/workspace/website/* ubuntu@172.31.25.64:/home/ubuntu/"
                 }
             }
-        }
+        } 
         stage('Webserver Deploy'){
             steps{
-                sshagent(['deploy']) {  
-                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.31.244'
-                    sh 'ssh -o StrictHostKeyChecking=no ansible-playbook -i invetri ansible.yml'
+                sshagent(['ansible_demo']) { 
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 cd /home/ubuntu'
+                    sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 ansible-playbook ansible.yml'
                 }
             }
-        }
+        }        
     }
 }
