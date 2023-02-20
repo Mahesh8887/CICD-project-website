@@ -51,7 +51,7 @@ pipeline {
                 }
             }
         } 
-        stage('Webserver Deploy'){
+        stage('Webapp Deployment using Ansible'){
             steps{
                 sshagent(['ansible_demo']) { 
                     sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.19.235 cd /home/ubuntu'
